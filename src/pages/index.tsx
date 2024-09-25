@@ -89,12 +89,23 @@ const GalleryView: FC<GalleryViewProps> = ({
   const thumbnailRefs = useRef<(HTMLDivElement | null)[]>([])
 
   const handleSelectImage = (index: number) => {
-    if (index !== 0 && index !== images.length - 1) {
-      setTransitionDirection(index > selectedIndex ? 'left' : 'right')
+    let animate = true
+    if (selectedIndex === 0 && index <= selectedIndex) {
+      animate = false
+    } else if (
+      selectedIndex === images.length - 1 &&
+      index >= images.length - 1
+    ) {
+      animate = false
+    }
+
+    if (animate) {
+      setTransitionDirection(index > selectedIndex ? 'right' : 'left')
     }
 
     setSelectedIndex(index)
   }
+
 
   // previous
   const handleSwipeLeft = () => {
@@ -312,6 +323,7 @@ const GalleryView: FC<GalleryViewProps> = ({
               direction={'row'}
               sx={{
                 flexDirection: 'row',
+                justifyContent: { sm: 'center' },
                 overflowX: 'scroll', // Enable horizontal scrolling
                 '&::-webkit-scrollbar': {
                   display: 'none',
