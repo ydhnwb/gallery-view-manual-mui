@@ -3,10 +3,9 @@ import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import { AppBar, Box, Button, Container, Dialog, DialogContent, Grid, IconButton, Stack, Toolbar, Typography } from '@mui/material'
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   const [open, setOpen] = useState(false)
@@ -36,6 +35,8 @@ export default function Home() {
     }
   }, [useLargeScreenView])
 
+
+ 
 
   return (
     <>
@@ -85,6 +86,8 @@ const GalleryView: FC<GalleryViewProps> = ({
     'left' | 'right' | ''
   >('') // Track swipe direction
 
+  const thumbnailRefs = useRef<(HTMLDivElement | null)[]>([])
+
   const handleSelectImage = (index: number) => {
     if (index !== 0 && index !== images.length - 1) {
       setTransitionDirection(index > selectedIndex ? 'left' : 'right')
@@ -125,6 +128,16 @@ const GalleryView: FC<GalleryViewProps> = ({
     }
   }, [transitionDirection])
 
+  useEffect(() => {
+    if (thumbnailRefs.current[selectedIndex]) {
+      thumbnailRefs.current[selectedIndex]?.scrollIntoView({
+        behavior: 'smooth', // Smooth scroll
+        block: 'nearest', // Scroll only enough to make it visible
+        inline: 'center', // Center the thumbnail in the view
+      })
+    }
+  }, [selectedIndex])
+
   return (
     <Dialog
       open={open}
@@ -135,6 +148,7 @@ const GalleryView: FC<GalleryViewProps> = ({
         sx: {
           backgroundColor: 'rgba(0, 0, 0, 0.8)', // Black tint with transparency
           overflowX: 'hidden',
+          overflowY: 'hidden', // twitch issue 
         },
       }}
     >
@@ -214,8 +228,7 @@ const GalleryView: FC<GalleryViewProps> = ({
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              height: '75%',
-              backgroundColor: 'blue',
+              height: '68%', // twitch
               mb: 2,
             }}
           >
@@ -252,7 +265,10 @@ const GalleryView: FC<GalleryViewProps> = ({
               container
               gap={1}
               spacing={1}
-              sx={{ justifyContent: 'center', alignItems: 'center', overflowX: 'auto', mt: 2,}}
+              sx={{ justifyContent: 'center', alignItems: 'center', overflowX: 'auto', mt: 2, 
+
+
+              }}
 
             >
 
@@ -306,7 +322,10 @@ const GalleryView: FC<GalleryViewProps> = ({
                 <Box
                   key={index}
                   onClick={() => handleSelectImage(index)}
-                  sx={{}}
+                  ref={(el: HTMLDivElement | null) =>
+                    (thumbnailRefs.current[index] = el)
+                  }
+
                 >
                   <Image
                     src={image}
